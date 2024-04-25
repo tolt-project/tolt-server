@@ -11,4 +11,5 @@ clean:
 	rm -rv ./classes/ $(outfile)
 
 run:
-	java -jar $(outfile)
+	cp $(outfile) ./test/
+	cd ./test/;java -jar *.jar
