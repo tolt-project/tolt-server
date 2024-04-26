@@ -48,7 +48,7 @@ public class Logging {
 
     public static void success (String message) {
 
-        printLog(ConsoleColors.ANSI_GREEN + message + ConsoleColors.ANSI_RESET);
+        printLog(ConsoleColors.ANSI_GREEN, message);
     }
     public static void log (String message) {
 
@@ -56,15 +56,15 @@ public class Logging {
     }
     public static void warn (String warning) {
 
-        printLog(ConsoleColors.ANSI_YELLOW + warning + ConsoleColors.ANSI_RESET);
+        printLog(ConsoleColors.ANSI_YELLOW, warning);
     }
     public static void err (String error) {
 
-        printLog(ConsoleColors.ANSI_RED + error + ConsoleColors.ANSI_RESET);
+        printLog(ConsoleColors.ANSI_RED, error);
     }
     public static void crit (String error) {
 
-        printLog(ConsoleColors.ANSI_RED_BACKGROUND + ConsoleColors.ANSI_WHITE + error + ConsoleColors.ANSI_RESET);
+        printLog(ConsoleColors.ANSI_RED_BACKGROUND + ConsoleColors.ANSI_WHITE, error);
     }
 
     public static void stackWarn (Exception e) {
@@ -74,7 +74,7 @@ public class Logging {
         e.printStackTrace(printWriter);
         String stackTraceMessage = stringWriter.toString();
 
-        printLog(ConsoleColors.ANSI_YELLOW + stackTraceMessage + ConsoleColors.ANSI_RESET, false);
+        printLog(ConsoleColors.ANSI_YELLOW, stackTraceMessage, false);
     }
     public static void stackErr (Exception e) {
 
@@ -83,7 +83,7 @@ public class Logging {
         e.printStackTrace(printWriter);
         String stackTraceMessage = stringWriter.toString();
 
-        printLog(ConsoleColors.ANSI_RED + stackTraceMessage + ConsoleColors.ANSI_RESET, false);
+        printLog(ConsoleColors.ANSI_RED, stackTraceMessage, false);
     }
     public static void stackCrit (Exception e) {
 
@@ -93,14 +93,23 @@ public class Logging {
         String stackTraceMessage = stringWriter.toString();
 
         printLog(
-            ConsoleColors.ANSI_RED_BACKGROUND + ConsoleColors.ANSI_WHITE +
-            stackTraceMessage + ConsoleColors.ANSI_RESET, false
+            ConsoleColors.ANSI_RED_BACKGROUND + ConsoleColors.ANSI_WHITE, stackTraceMessage, false
         );
     }
 
-    private static void printLog(String message) { _printLog(message, true); }
-    private static void printLog(String message, boolean showTime) { _printLog(message, showTime); }
-    private static synchronized void _printLog (String message, boolean showTime) { try {
+    private static void printLog(String message) {
+
+        _printLog("", message, true);
+    }
+    private static void printLog(String colorCode, String message) {
+
+        _printLog(colorCode, message, true);
+    }
+    private static void printLog(String colorCode, String message, boolean showTime) {
+
+        _printLog(colorCode, message, showTime);
+    }
+    private static synchronized void _printLog (String colorCode, String message, boolean showTime) { try {
 
         if (logFile == null) { throw new Exception("Logging.log() called before Logging.start()!"); }
 
@@ -114,7 +123,7 @@ public class Logging {
 
         Files.writeString(logFile.toPath(), post + System.lineSeparator(),
             StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        System.out.println(post);
+        System.out.println(colorCode + post + ConsoleColors.ANSI_RESET);
 
     } catch (Exception e) { e.printStackTrace(); } }
 }
