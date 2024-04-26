@@ -11,6 +11,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+import tolt.server.service.logging.Logging;
+
 public class Loading {
 
     public static class PemLoader {
@@ -35,7 +37,7 @@ public class Loading {
 
             } catch (Exception e) {
 
-                e.printStackTrace();
+                Logging.stackErr(e);
                 return null;
             }
         }
@@ -61,7 +63,7 @@ public class Loading {
 
             } catch (Exception e) {
 
-                e.printStackTrace();
+                Logging.stackErr(e);
                 return null;
             }
         }

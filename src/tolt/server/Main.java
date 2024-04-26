@@ -2,7 +2,7 @@
 package tolt.server;
 
 import tolt.server.network.Network;
-import tolt.server.service.Logging;
+import tolt.server.service.logging.Logging;
 
 public class Main {
 

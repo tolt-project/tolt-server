@@ -16,7 +16,7 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
 
 import tolt.server.security.Loading.PemLoader;
-import tolt.server.service.Logging;
+import tolt.server.service.logging.Logging;
 
 public class Server {
 
@@ -30,13 +30,15 @@ public class Server {
         X509Certificate certificate = PemLoader.loadX509Certificate("server-cert.pem");
 
         if (privateKey == null) {
-            Logging.log("Failed to start server, privateKey == null!");
+            Logging.warn("Failed to start server, privateKey == null!");
             return;
         }
         if (certificate == null) {
-            Logging.log("Failed to start server, certificate == null!");
+            Logging.warn("Failed to start server, certificate == null!");
             return;
         }
+        
+        Logging.log("Starting Server on `0.0.0.0:8282'...");
 
         try {
 
@@ -70,8 +72,8 @@ public class Server {
 
         } catch (Exception e) {
 
-            Logging.log("Failed to start server!");
-            e.printStackTrace();
+            Logging.crit("Failed to start server!");
+            Logging.stackErr(e);
         }
     }
     public static void stop () {
@@ -106,8 +108,8 @@ public class Server {
 
                 if (!shouldStop) {
 
-                    System.out.println("accpetLoop Exception!");
-                    e.printStackTrace();
+                    Logging.warn("Exception encountered while attempting to catch incoming client!");
+                    Logging.stackWarn(e);
                 }
             }
         }

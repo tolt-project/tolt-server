@@ -1,7 +1,7 @@
 
 package tolt.server.network;
 
-import tolt.server.service.Logging;
+import tolt.server.service.logging.Logging;
 
 public class Network {
 
@@ -16,7 +16,11 @@ public class Network {
 
         if (!isOnline()) {
 
-            Logging.log("Server failed to start! NOT RUNNING!");
+            Logging.err("Server failed to start! NOT RUNNING!");
+
+        } else {
+
+            Logging.success("Server started successfully!!");
         }
     }
 
@@ -24,6 +28,7 @@ public class Network {
 
         if (!isOnline()) return;
 
+        Logging.log("Stopping the Server..");
         Server.stop();
     }
 }
