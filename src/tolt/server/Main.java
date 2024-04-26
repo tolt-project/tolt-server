@@ -3,6 +3,7 @@ package tolt.server;
 
 import tolt.server.network.Network;
 import tolt.server.service.logging.Logging;
+import tolt.server.system.Action;
 
 public class Main {
 
@@ -15,5 +16,7 @@ public class Main {
         try { System.in.read(); } catch (Exception e) {}
 
         Network.stop();
+
+        Action.shutdown(0, "Process ended.");
     }
 }
