@@ -1,6 +1,8 @@
 
 package tolt.server.network;
 
+import tolt.server.service.Logging;
+
 public class Network {
 
     public static boolean isOnline ()
@@ -14,7 +16,7 @@ public class Network {
 
         if (!isOnline()) {
 
-            System.out.println("Server failed to start! NOT RUNNING!");
+            Logging.log("Server failed to start! NOT RUNNING!");
         }
     }
 
