@@ -8,7 +8,7 @@ output:
 	jar -cfve $(outfile) $(mainclass) -C $(classp) .
 
 clean:
-	rm -rv ./classes/ $(outfile)
+	rm -rv $(classp)/ $(outfile)
 
 run:
 	cp $(outfile) ./test/
