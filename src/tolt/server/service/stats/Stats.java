@@ -46,6 +46,8 @@ public class Stats {
             }
 
         } catch (Exception e) { Logging.stackWarn(e); }
+
+        Logging.log("Loaded `" + stats.size() + "' statistics!");
     }
     public static void save () {
 
@@ -60,5 +62,7 @@ public class Stats {
             Files.writeString(statFile.toPath(), writeCache);
 
         } catch (Exception e) { Logging.stackWarn(e); }
+
+        Logging.log("Saved `" + stats.size() + "' statistics!");
     }
 }
