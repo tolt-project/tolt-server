@@ -17,6 +17,7 @@ import javax.net.ssl.SSLSocket;
 
 import tolt.server.security.Loading.PemLoader;
 import tolt.server.service.logging.Logging;
+import tolt.server.service.Config;
 
 public class Server {
 
@@ -26,8 +27,8 @@ public class Server {
 
     public static void start () {
 
-        PrivateKey privateKey = PemLoader.loadPrivateKey("private-key.pem"); //hard coded for now
-        X509Certificate certificate = PemLoader.loadX509Certificate("server-cert.pem");
+        PrivateKey privateKey = PemLoader.loadPrivateKey(Config.getString("server.private-key-path"));
+        X509Certificate certificate = PemLoader.loadX509Certificate(Config.getString("server.server-cert-path"));
 
         if (privateKey == null) {
             Logging.warn("Failed to start server, privateKey == null!");
@@ -37,8 +38,11 @@ public class Server {
             Logging.warn("Failed to start server, certificate == null!");
             return;
         }
-        
-        Logging.log("Starting Server on `0.0.0.0:8282'...");
+
+        Logging.log(String.format(
+            "Starting Server on `%s:%s'...",
+            Config.getString("server.ipaddress"), Config.getInt("server.port")
+        ));
 
         try {
 
@@ -58,7 +62,7 @@ public class Server {
 
             SSLServerSocketFactory sslServerSocketFactory = sslContext.getServerSocketFactory();
             sslServerSocket = (SSLServerSocket)sslServerSocketFactory.createServerSocket(
-                8282, 50, InetAddress.getByName("0.0.0.0") //hardcoded for now
+                Config.getInt("server.port"), 50, InetAddress.getByName(Config.getString("server.ipaddress")) //hardcoded for now
             );
 
             mainThread = new Thread () {
