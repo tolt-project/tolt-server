@@ -4,6 +4,7 @@ package tolt.server;
 import tolt.server.network.Network;
 import tolt.server.service.logging.Logging;
 import tolt.server.service.Config;
+import tolt.server.service.stats.Stats;
 import tolt.server.system.Action;
 
 public class Main {
@@ -12,6 +13,11 @@ public class Main {
 
         Logging.start();
         Config.load();
+        Stats.load();
+        Logging.log(String.format(
+            "Server has been started %d times.",
+            Stats.increment("server.launch-count")
+        ));
 
         Network.start();
 
