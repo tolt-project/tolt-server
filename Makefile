@@ -13,3 +13,6 @@ clean:
 run:
 	cp $(outfile) ./test/
 	cd ./test/;java -jar *.jar
+
+lines:
+	git ls-files | grep '.java' | xargs wc -l
