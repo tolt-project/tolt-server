@@ -51,7 +51,6 @@ public class Stats {
 
         File statFile = new File(statPath);
         if (statFile.exists()) statFile.delete();
-        statFile.getParentFile().mkdirs();
 
         String writeCache = "";
         for (String key : stats.keySet().toArray(new String[stats.size()]))
