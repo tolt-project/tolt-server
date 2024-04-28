@@ -2,6 +2,8 @@
 package tolt.server;
 
 import tolt.server.system.Action;
+import tolt.server.core.Command;
+import tolt.server.service.logging.Logging;
 
 public class Main {
 
@@ -9,8 +11,14 @@ public class Main {
 
         Action.start();
 
-        try { System.in.read(); } catch (Exception e) {}
+        while (true) try {
 
-        Action.shutdown(0, "Process ended.");
+            String input = System.console().readLine();
+            Command.parse(input);
+
+        } catch (Exception e) {
+
+            Logging.stackErr(e);
+        }
     }
 }
