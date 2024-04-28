@@ -42,7 +42,13 @@ public class Cache {
 
     public static int size () { return cache.size(); }
     public static OutputStream getStreamByIndex (int i) { return cache.get(i).stream; }
+    public static String getNameByIndex (int i) { return cache.get(i).getName(); }
+    public static String getNameById (int id) { return cache.get(getIndexById(id)).getName(); }
     public static int getIdByIndex (int i) { return cache.get(i).getId(); }
+    public static int getIndexById (int id) {
+        for (int i = 0; i < cache.size(); ++i)
+            if (cache.get(i).getId() == id) return i; return -1;
+    }
 
     public static class Incoming {
 

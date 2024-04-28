@@ -118,7 +118,9 @@ public class Handling {
             short packetId = 0; int packetSize = 0;
             int recvBytes = 0, state = 0;
 
-            try { while (true) {
+            if (!Authentication.authenticate(id, stream)) {
+
+            } else try { while (true) {
 
                 recvBytes = stream.read(cacheBuffer, 0, 1);
                 if (recvBytes <= 0) break;
