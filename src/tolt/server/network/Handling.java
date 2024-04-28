@@ -31,7 +31,7 @@ public class Handling {
 
     public static void start () {
 
-        shouldStop = false;
+        running = true; shouldStop = false;
         new Thread () {
             public void run () { loop(); }
         }.start();
@@ -39,9 +39,11 @@ public class Handling {
     public static void stop () {
 
         shouldStop = true;
+        while (running) try { Thread.sleep(10);
+        } catch (Exception e) {}
     }
 
-    private static boolean shouldStop = false;
+    private static boolean running = false, shouldStop = false;
 
     private static void loop () {
 
@@ -69,6 +71,7 @@ public class Handling {
         } catch (Exception e) {} });
 
         Logging.log("Client-handler has stopped.");
+        running = false;
     }
 
 
