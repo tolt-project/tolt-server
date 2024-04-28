@@ -1,5 +1,5 @@
 
-package tolt.server.network.module;
+package tolt.server.network.cache;
 
 import java.io.OutputStream;
 import javax.net.ssl.SSLSocket;
@@ -18,6 +18,12 @@ public class CacheEntry {
 
         this.socket = socket;
         this.stream = socket.getOutputStream();
+
+    } catch (Exception e) {} }
+
+    public void close () { try {
+
+        socket.close();
 
     } catch (Exception e) {} }
 }

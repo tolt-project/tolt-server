@@ -102,7 +102,7 @@ public class Server {
                 Logging.log("Caught client:" + socket.getRemoteSocketAddress().toString());
                 Stats.increment("catching.client-catches");
 
-                Handling.queueClient(socket);
+                Handling.queueIncoming(socket);
 
             } catch (Exception e) {
 

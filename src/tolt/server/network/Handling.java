@@ -12,20 +12,15 @@ import javax.net.ssl.SSLSocket;
 import java.net.Socket;
 
 import tolt.server.service.logging.Logging;
+import tolt.server.network.cache.Cache;
 
 public class Handling {
 
-    private static Object mutex = new Object();
-
-    private static Queue<SSLSocket> newClients = new LinkedList<SSLSocket>();
-    public static void queueClient (SSLSocket socket) {
-        synchronized (mutex) { newClients.add(socket); }
+    public static void queueIncoming (SSLSocket socket) {
+        Cache.Incoming.enqueue(socket);
     }
-    public static int newClientCount () {
-        synchronized (mutex) { return newClients.size(); }
-    }
-    public static SSLSocket popClientQueue () {
-        synchronized (mutex) { return newClients.remove(); }
+    public static void queueDisconnect (int id) {
+        Cache.Disconnecting.enqueue(id);
     }
 
 
@@ -51,15 +46,23 @@ public class Handling {
 
         while (!shouldStop) { try {
 
-            if (newClientCount() != 0) {
+            if (Cache.Incoming.count() != 0) {
 
-                SSLSocket socket = popClientQueue();
+                SSLSocket socket = Cache.Incoming.dequeue();
                 int id = Cache.initEntry(socket);
                 recvLoop(id, socket.getInputStream());
 
                 Logging.log(
                     socket.getRemoteSocketAddress().toString() + " is " + id
                 );
+            }
+
+            if (Cache.Disconnecting.count() != 0) {
+
+                int id = Cache.Disconnecting.dequeue();
+                Cache.killEntry(id);
+
+                Logging.log(id + " has disconnected...");
             }
 
             sendLoop();
@@ -90,8 +93,6 @@ public class Handling {
     private static void recvLoop (int id, InputStream stream) {
 
         new Thread () { public void run () {
-
-            Logging.log(id + " recvLoop is online");
 
             byte[] cacheBuffer = new byte[1];
             ByteBuffer recvBuffer = ByteBuffer.allocate(2);
@@ -151,7 +152,7 @@ public class Handling {
                 Logging.warn(id + ": " + e.getMessage());
             }
 
-            Logging.log(id + " recvLoop is offline");
+            queueDisconnect(id);
 
         } }.start();
     }
