@@ -99,8 +99,8 @@ public class Server {
 
                 SSLSocket socket = (SSLSocket)sslServerSocket.accept();
 
-                Logging.log("Caught client:" + socket.getRemoteSocketAddress().toString());
                 Stats.increment("catching.client-catches");
+                Logging.log("Caught client:" + socket.getRemoteSocketAddress().toString());
 
                 Handling.queueIncoming(socket);
 
