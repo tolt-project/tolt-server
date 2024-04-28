@@ -20,7 +20,7 @@ import tolt.server.service.logging.Logging;
 import tolt.server.service.Config;
 import tolt.server.service.stats.Stats;
 
-public class Server {
+public class Catching {
 
     private static boolean running = false, shouldStop = false;
     public static boolean isRunning ()
@@ -32,16 +32,16 @@ public class Server {
         X509Certificate certificate = PemLoader.loadX509Certificate(Config.getString("server.server-cert-path"));
 
         if (privateKey == null) {
-            Logging.warn("Failed to start server, privateKey == null!");
+            Logging.warn("Failed to start Listener, privateKey == null!");
             return;
         }
         if (certificate == null) {
-            Logging.warn("Failed to start server, certificate == null!");
+            Logging.warn("Failed to start Listener, certificate == null!");
             return;
         }
 
         Logging.log(String.format(
-            "Starting Server on `%s:%s'...",
+            "Starting Listener on `%s:%s'...",
             Config.getString("server.ipaddress"), Config.getInt("server.port")
         ));
 
@@ -73,11 +73,11 @@ public class Server {
 
             running = true; shouldStop = false;
 
-            Logging.log("Server has started!");
+            Logging.log("Listener has started!");
 
         } catch (Exception e) {
 
-            Logging.crit("Failed to start server!");
+            Logging.crit("Failed to start Listener!");
             Logging.stackErr(e);
         }
     }
@@ -114,6 +114,6 @@ public class Server {
             }
         }
 
-        Logging.log("Server has stopped...");
+        Logging.log("Listener has stopped...");
     }
 }

@@ -7,17 +7,17 @@ import tolt.server.system.Action;
 public class Network {
 
     public static boolean isOnline ()
-        { return Server.isRunning(); }
+        { return Catching.isRunning(); }
 
     public static void start () {
 
         if (isOnline()) return;
 
-        Server.start();
+        Catching.start();
 
         if (!isOnline()) {
 
-            Logging.err("Server failed to start! NOT RUNNING!");
+            Logging.err("Listener failed to start! NOT RUNNING!");
             Action.shutdown(-1, "Failed to initialize Server.");
 
         } else {
@@ -31,6 +31,6 @@ public class Network {
         if (!isOnline()) return;
 
         Logging.log("Stopping the Server..");
-        Server.stop();
+        Catching.stop();
     }
 }
