@@ -16,6 +16,7 @@ public class Cache {
 
     public static int initEntry (SSLSocket socket) {
 
+        IOQueues.Send.init(socket.hashCode());
         cache.add(new CacheEntry(socket));
         return socket.hashCode();
     }
@@ -26,6 +27,7 @@ public class Cache {
         for (int i = 0; i < cache.size(); ++i)
             if (cache.get(i).getId() == id) index = i;
 
+        IOQueues.Send.kill(id);
         cache.get(index).close();
         cache.remove(index);
     }
@@ -39,7 +41,8 @@ public class Cache {
     }
 
     public static int size () { return cache.size(); }
-    public static OutputStream get (int i) { return cache.get(i).stream; }
+    public static OutputStream getStreamByIndex (int i) { return cache.get(i).stream; }
+    public static int getIdByIndex (int i) { return cache.get(i).getId(); }
 
     public static class Incoming {
 
@@ -96,6 +99,17 @@ public class Cache {
             public static byte pop (int id) { synchronized (sendQueues) {
 
                 return sendQueues.get(id).remove();
+            } }
+
+            public static void init (int id) { synchronized (sendQueues) {
+
+                if (!sendQueues.containsKey(id)) sendQueues.put(id, new LinkedList<Byte>());
+            } }
+            public static void kill (int id) { synchronized (sendQueues) {
+
+                if (sendQueues.containsKey(id)) {
+                    sendQueues.get(id).clear(); sendQueues.remove(id);
+                }
             } }
         }
 

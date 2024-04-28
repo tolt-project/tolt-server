@@ -13,6 +13,7 @@ import java.net.Socket;
 
 import tolt.server.service.logging.Logging;
 import tolt.server.network.cache.Cache;
+import tolt.server.network.module.Packet;
 
 public class Handling {
 
@@ -81,12 +82,30 @@ public class Handling {
     }
 
 
+    private static boolean actioned = false;
+    private static int idCache = -1;
     private static void sendLoop () {
 
-        //if there is data to send to the clients, which at this point
-        //there is not, we send it to all clients, or to respective client
-        //if there is nothing then we wait
-        try { Thread.sleep(10);
+        actioned = false;
+
+        for (int i = 0; i < Cache.size(); ++i) {
+
+            idCache = Cache.getIdByIndex(i);
+
+            if (Cache.IOQueues.Send.isEmpty(idCache)) continue;
+
+            try {
+
+                Cache.getStreamByIndex(i).write(Cache.IOQueues.Send.pop(idCache));
+                actioned = true;
+
+            } catch (Exception e) {
+
+                Logging.warn(idCache + ": " + e.getMessage());
+            }
+        }
+
+        if (!actioned) try { Thread.sleep(10);
         } catch (Exception e) {}
     }
 
@@ -133,13 +152,19 @@ public class Handling {
                     case 2: {
                         if (recvBuffer.position() != packetSize) break;
 
-                        String cache = "";
-                        for (byte b : recvBuffer.array()) cache += b +", ";
-                        Logging.log(id +
-                            ": packetId: " + packetId +
-                            ", packetSize: " + packetSize +
-                            ", packetData: [" + cache + "]"
-                        );
+                        ///////////////////////////// TEMP
+                            String cache = "";
+                            for (byte b : recvBuffer.array()) cache += b +", ";
+                            Logging.log(id +
+                                ": packetId: " + packetId +
+                                ", packetSize: " + packetSize +
+                                ", packetData: [" + cache + "]"
+                            );
+                        ///////////////////////////// TEMP
+
+                        Cache.IOQueues.Recv.queue(new Packet(
+                            id, packetId, recvBuffer.array()
+                        ));
 
                         recvBuffer = ByteBuffer.allocate(2);
                         state = 0;
