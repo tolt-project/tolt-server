@@ -54,9 +54,10 @@ public class Handling {
             if (newClientCount() != 0) {
 
                 SSLSocket socket = popClientQueue();
-                clients.add(socket);
-                streams.add(socket.getOutputStream());
-                recvLoop(socket.getInputStream());
+                int id = Cache.initEntry(socket);
+                recvLoop(id, socket.getInputStream());
+
+                Logging.log(id + " has connected!");
             }
 
             sendLoop();
@@ -64,19 +65,16 @@ public class Handling {
         } catch (Exception e) { Logging.stackWarn(e); } }
 
         Logging.log("Closing all client sockets..");
-        clients.forEach(client -> { try {
+        for (var socket : Cache.getAllSockets()) { try {
 
-            client.close();
+            socket.close();
 
-        } catch (Exception e) {} });
+        } catch (Exception e) {} }
 
         Logging.log("Client-handler has stopped.");
         running = false;
     }
 
-
-    private static Vector<SSLSocket> clients = new Vector<SSLSocket>();
-    private static Vector<OutputStream> streams = new Vector<OutputStream>();
 
     private static void sendLoop () {
 
@@ -87,10 +85,11 @@ public class Handling {
         } catch (Exception e) {}
     }
 
-
-    private static void recvLoop (InputStream stream) {
+    private static void recvLoop (int id, InputStream stream) {
 
         new Thread () { public void run () {
+
+            Logging.log(id + " recvLoop is online");
 
             byte[] cacheBuffer = new byte[1];
             ByteBuffer recvBuffer = ByteBuffer.allocate(2);
@@ -149,6 +148,8 @@ public class Handling {
 
                 Logging.stackWarn(e);
             } }
+
+            Logging.log(id + " recvLoop is offline");
 
         } }.start();
     }
