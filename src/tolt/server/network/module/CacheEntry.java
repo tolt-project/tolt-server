@@ -11,6 +11,9 @@ public class CacheEntry {
 
     public int getId () { return socket.hashCode(); }
 
+    public String getName ()
+        { return socket.getRemoteSocketAddress().toString(); }
+
     public CacheEntry (SSLSocket socket) { try {
 
         this.socket = socket;

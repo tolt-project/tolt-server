@@ -31,7 +31,7 @@ public class Action {
             Logging.err("Shutdown called twice!"); return;
         } shutdownCalled = true;
 
-        Logging.log("Shutting down Tolt Server. " + reason);
+        Logging.log("Shutting down Tolt Server: " + reason);
         Event.onShutdown();
 
         Logging.log("Exit: " + String.valueOf(exitCode));

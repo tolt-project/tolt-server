@@ -57,7 +57,9 @@ public class Handling {
                 int id = Cache.initEntry(socket);
                 recvLoop(id, socket.getInputStream());
 
-                Logging.log(id + " has connected!");
+                Logging.log(
+                    socket.getRemoteSocketAddress().toString() + " is " + id
+                );
             }
 
             sendLoop();
@@ -96,7 +98,7 @@ public class Handling {
             short packetId = 0; int packetSize = 0;
             int recvBytes = 0, state = 0;
 
-            while (true) { try {
+            try { while (true) {
 
                 recvBytes = stream.read(cacheBuffer, 0, 1);
                 if (recvBytes <= 0) break;
@@ -132,8 +134,8 @@ public class Handling {
 
                         String cache = "";
                         for (byte b : recvBuffer.array()) cache += b +", ";
-                        Logging.log(
-                            "packetId: " + packetId +
+                        Logging.log(id +
+                            ": packetId: " + packetId +
                             ", packetSize: " + packetSize +
                             ", packetData: [" + cache + "]"
                         );
@@ -144,10 +146,10 @@ public class Handling {
                     break; }
                 }
 
-            } catch (Exception e) {
+            } } catch (Exception e) {
 
-                Logging.stackWarn(e);
-            } }
+                Logging.warn(id + ": " + e.getMessage());
+            }
 
             Logging.log(id + " recvLoop is offline");
 
