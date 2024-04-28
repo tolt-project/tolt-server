@@ -4,8 +4,11 @@ package tolt.server.network.cache;
 import java.util.Queue;
 import java.util.LinkedList;
 import java.util.Vector;
+import java.util.HashMap;
 import java.io.OutputStream;
 import javax.net.ssl.SSLSocket;
+
+import tolt.server.network.module.Packet;
 
 public class Cache {
 
@@ -67,6 +70,51 @@ public class Cache {
         }
         public static int count () {
             synchronized (mutex) { return disconnectingClients.size(); }
+        }
+    }
+
+    public static class IOQueues {
+
+        public static class Send {
+
+            private static HashMap<Integer, Queue<Byte>> sendQueues = new HashMap<Integer, Queue<Byte>>();
+
+            public static void queue (int id, byte[] data) { synchronized (sendQueues) {
+
+                for (byte b : data) sendQueues.get(id).add(b);
+            } }
+            public static void queueAll (byte[] data) { synchronized (sendQueues) {
+
+                sendQueues.keySet().forEach(id -> {
+                    for (byte b : data) sendQueues.get(id).add(b);
+                });
+            } }
+            public static boolean isEmpty (int id) { synchronized (sendQueues) {
+
+                return sendQueues.get(id).size() == 0;
+            } }
+            public static byte pop (int id) { synchronized (sendQueues) {
+
+                return sendQueues.get(id).remove();
+            } }
+        }
+
+        public static class Recv {
+
+            private static Queue<Packet> recvQueue = new LinkedList<Packet>();
+
+            public static void queue (Packet packet) { synchronized (recvQueue) {
+
+                recvQueue.add(packet);
+            } }
+            public static boolean isEmpty () { synchronized (recvQueue) {
+
+                return recvQueue.size() == 0;
+            } }
+            public static Packet pop () { synchronized (recvQueue) {
+
+                return recvQueue.remove();
+            } }
         }
     }
 }
