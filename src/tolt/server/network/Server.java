@@ -18,6 +18,7 @@ import javax.net.ssl.SSLSocket;
 import tolt.server.security.Loading.PemLoader;
 import tolt.server.service.logging.Logging;
 import tolt.server.service.Config;
+import tolt.server.service.stats.Stats;
 
 public class Server {
 
@@ -66,7 +67,7 @@ public class Server {
             );
 
             mainThread = new Thread () {
-                public void run () { acceptLoop(); }
+                public void run () { catchLoop(); }
             };
             mainThread.start();
 
@@ -90,7 +91,7 @@ public class Server {
     private static Thread mainThread = null;
     private static SSLServerSocket sslServerSocket = null;
 
-    private static void acceptLoop () {
+    private static void catchLoop () {
 
         while (!shouldStop) {
 
@@ -98,22 +99,17 @@ public class Server {
 
                 SSLSocket socket = (SSLSocket)sslServerSocket.accept();
 
-                ///////////////////// TEMP TEST
-                    byte[] recv = new byte[5];
-                    socket.getInputStream().read(recv, 0, 5);
-                    System.out.println(new String(recv, "ASCII"));
+                Logging.log("Caught client:" + socket.getRemoteSocketAddress().toString());
+                Stats.increment("catching.client-catches");
 
-                    socket.getOutputStream().write("olleh".getBytes("ASCII"), 0, 5);
-
-                    socket.close();
-                ///////////////////// TEMP TEST
+                Handling.queueClient(socket);
 
             } catch (Exception e) {
 
                 if (!shouldStop) {
 
-                    Logging.warn("Exception encountered while attempting to catch incoming client!");
-                    Logging.stackWarn(e);
+                    Stats.increment("catching.client-misses");
+                    Logging.warn("Failed to catch Client: " + e.getMessage());
                 }
             }
         }

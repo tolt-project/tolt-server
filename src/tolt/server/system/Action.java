@@ -2,6 +2,7 @@
 package tolt.server.system;
 
 import tolt.server.network.Network;
+import tolt.server.network.Handling;
 import tolt.server.service.logging.Logging;
 import tolt.server.service.Config;
 import tolt.server.service.stats.Stats;
@@ -16,8 +17,7 @@ public class Action {
         } startupCalled = true;
 
         Event.onStartup();
-
-        Stats.increment("server.launch-count");
+        Stats.increment("startup-count");
     }
 
     public static void shutdown (int exitCode) {
@@ -33,6 +33,7 @@ public class Action {
 
         Logging.log("Shutting down Tolt Server. " + reason);
         Event.onShutdown();
+
         Logging.log("Exit: " + String.valueOf(exitCode));
         System.exit(exitCode);
     }
@@ -46,11 +47,14 @@ public class Action {
             Stats.load();
 
             Network.start();
+            Handling.start();
         }
 
         public static void onShutdown () {
 
             Network.stop();
+            Handling.stop();
+
             Stats.save();
         }
     }
