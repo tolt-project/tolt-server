@@ -43,7 +43,7 @@ public class Handling {
 
     private static void loop () {
 
-        Logging.log("Starting Client-handler..");
+        Logging.log("Started Client-handler.");
 
         while (!shouldStop) { try {
 

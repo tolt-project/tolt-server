@@ -9,7 +9,7 @@ public class PacketProcessor {
 
     public static void start () {
 
-        shouldStop = false;
+        shouldStop = false; running = true;
         new Thread () {
             public void run () { loop(); }
         }.start();
@@ -25,7 +25,9 @@ public class PacketProcessor {
 
     private static void loop () {
 
-        while (true) try {
+        Logging.log("Started Packet-processor.");
+
+        while (!shouldStop) try {
 
             if (Cache.IOQueues.Recv.isEmpty())
                 Thread.sleep(10);
@@ -44,5 +46,8 @@ public class PacketProcessor {
 
             Logging.stackErr(e);
         }
+
+        Logging.log("Packet-processor has stopped.");
+        running = false;
     }
 }
