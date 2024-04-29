@@ -7,6 +7,8 @@ public class Packet {
     public short id;
     public byte[] data;
 
+    public int size() { return data.length; }
+
     public Packet (int sender, short id, byte[] data) {
 
         this.sender = sender;

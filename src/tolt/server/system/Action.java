@@ -6,6 +6,7 @@ import tolt.server.network.Handling;
 import tolt.server.service.logging.Logging;
 import tolt.server.service.Config;
 import tolt.server.service.stats.Stats;
+import tolt.server.core.PacketProcessor;
 
 public class Action {
 
@@ -48,12 +49,14 @@ public class Action {
 
             Network.start();
             Handling.start();
+            PacketProcessor.start();
         }
 
         public static void onShutdown () {
 
             Network.stop();
             Handling.stop();
+            PacketProcessor.stop();
 
             Stats.save();
         }
