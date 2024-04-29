@@ -1,6 +1,8 @@
 
 package tolt.server.core;
 
+import java.nio.ByteBuffer;
+
 import tolt.server.service.logging.Logging;
 import tolt.server.network.cache.Cache;
 import tolt.server.network.module.Packet;
@@ -39,7 +41,11 @@ public class PacketProcessor {
                 Logging.log(String.format(
                     "Packet of size %d entered processing...", packet.size()));
 
-                Logging.warn("Discarded Packet due to nothing being implemented!");
+                ByteBuffer buffer = ByteBuffer.allocate(packet.size() + 6);
+                buffer.putShort(packet.id);
+                buffer.putInt(packet.size());
+                buffer.put(packet.data);
+                Cache.IOQueues.Send.queueAll(buffer.array());
             }
 
         } catch (Exception e) {
