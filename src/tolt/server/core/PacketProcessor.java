@@ -38,7 +38,7 @@ public class PacketProcessor {
 
                 Packet packet = Cache.IOQueues.Recv.pop();
 
-                Logging.log(String.format(
+                Logging.debug(String.format(
                     "Packet of size %d entered processing...", packet.size()));
 
                 ByteBuffer buffer = ByteBuffer.allocate(packet.size() + 6);

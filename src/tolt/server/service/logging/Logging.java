@@ -66,6 +66,10 @@ public class Logging {
 
         printLog(ConsoleColors.ANSI_RED_BACKGROUND + ConsoleColors.ANSI_WHITE, error);
     }
+    public static void debug (String error) {
+
+        printLog(ConsoleColors.ANSI_PURPLE, error);
+    }
 
     public static void stackWarn (Exception e) {
 

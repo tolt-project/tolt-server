@@ -157,7 +157,7 @@ public class Handling {
                         ///////////////////////////// TEMP
                             String cache = "";
                             for (byte b : recvBuffer.array()) cache += b +", ";
-                            Logging.log(id +
+                            Logging.debug(id +
                                 ": packetId: " + packetId +
                                 ", packetSize: " + packetSize +
                                 ", packetData: [" + cache + "]"
