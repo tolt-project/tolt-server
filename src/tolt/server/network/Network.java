@@ -19,10 +19,6 @@ public class Network {
 
             Logging.err("Listener failed to start! NOT RUNNING!");
             Action.shutdown(-1, "Failed to initialize Server.");
-
-        } else {
-
-            Logging.success("Server started successfully!!");
         }
     }
 
@@ -30,7 +26,7 @@ public class Network {
 
         if (!isOnline()) return;
 
-        Logging.log("Stopping the Server..");
+        Logging.log("Stopping the Listener..");
         Catching.stop();
     }
 }

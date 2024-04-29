@@ -1,6 +1,9 @@
 
 package tolt.server.system;
 
+import java.time.Instant;
+import java.time.Duration;
+
 import tolt.server.network.Network;
 import tolt.server.network.Handling;
 import tolt.server.service.logging.Logging;
@@ -17,8 +20,17 @@ public class Action {
             Logging.err("Startup called twice!"); return;
         } startupCalled = true;
 
+        Instant timeStart = Instant.now();
+
         Event.onStartup();
         Stats.increment("startup-count");
+
+        Instant timeStop = Instant.now();
+        Duration duration = Duration.between(timeStart, timeStop);
+        long startMillis = duration.toMillis();
+
+        Logging.success(String.format(
+            "Server started successfully! Took %dms.", startMillis));
     }
 
     public static void shutdown (int exitCode) {
