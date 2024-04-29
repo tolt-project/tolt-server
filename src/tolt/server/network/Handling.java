@@ -1,6 +1,7 @@
 
 package tolt.server.network;
 
+import java.lang.Math;
 import java.lang.Thread;
 import java.util.Vector;
 import java.util.Queue;
@@ -83,7 +84,9 @@ public class Handling {
 
 
     private static boolean actioned = false;
-    private static int idCache = -1;
+    private static int idCache = -1, capacity;
+    private static byte[] sendCache;
+    private static final int packetChunkMax = 10;
     private static void sendLoop () {
 
         actioned = false;
@@ -96,7 +99,45 @@ public class Handling {
 
             try {
 
-                Cache.getStreamByIndex(i).write(Cache.IOQueues.Send.pop(idCache));
+                sendCache = Cache.IOQueues.Send.pop(idCache);
+                capacity = packetChunkMax;
+
+                    Logging.debug("");
+                    Logging.debug("In length: " + sendCache.length);
+                    Logging.debug("Capacity: " + capacity);
+
+                if (capacity > sendCache.length) {
+
+                    Cache.getStreamByIndex(i).write(sendCache, 0, sendCache.length);
+
+                        String c = ""; for (int x = 0; x < sendCache.length; ++x) c += sendCache[x] + ",";
+                        Logging.debug(String.format(
+                            "%d of %d (%d) was sent [%sEOB]", i, Cache.size(), idCache, c));
+
+                } else {
+
+                    if (sendCache.length % capacity != 0) {
+                        while (sendCache.length % capacity < 6 && capacity > 6)
+                            capacity--;
+
+
+                        Logging.debug("Adjusted capacity: " + capacity);
+                    }
+
+                    int count = -java.lang.Math.floorDiv(-sendCache.length, capacity);
+                    for (int s = 0; s < count; ++s) {
+
+                        int size = java.lang.Math.min(capacity, sendCache.length - (s * capacity));
+                        byte[] section = new byte[size];
+                        System.arraycopy(sendCache, s * capacity, section, 0, size);
+
+                        Cache.getStreamByIndex(i).write(section, 0, size);
+
+                            String c = ""; for (int x = 0; x < size; ++x) c += section[x] + ",";
+                            Logging.debug(String.format(
+                                "%d of %d (%d) was sent section %d: [%sEOB]", i, Cache.size(), idCache, s, c));
+                    }
+                }
                 actioned = true;
 
             } catch (Exception e) {
@@ -146,8 +187,27 @@ public class Handling {
 
                         recvBuffer.rewind();
                         packetSize = recvBuffer.getInt();
-                        recvBuffer = ByteBuffer.allocate(packetSize);
-                        state = 2;
+
+                        if (packetSize == 0) {
+
+                            ///////////////////////////// TEMP
+                                Logging.debug(id +
+                                    ": packetId: " + packetId +
+                                    ", packetSize: " + packetSize +
+                                    ", packetData: [null]"
+                                );
+                            ///////////////////////////// TEMP
+
+                            Cache.IOQueues.Recv.queue(new Packet(
+                                id, packetId, new byte[0]));
+
+                            recvBuffer = ByteBuffer.allocate(2);
+                            state = 0;
+
+                        } else {
+                            recvBuffer = ByteBuffer.allocate(packetSize);
+                            state = 2;
+                        }
 
                     break; }
 
@@ -160,13 +220,12 @@ public class Handling {
                             Logging.debug(id +
                                 ": packetId: " + packetId +
                                 ", packetSize: " + packetSize +
-                                ", packetData: [" + cache + "]"
+                                ", packetData: [" + cache + "EOB]"
                             );
                         ///////////////////////////// TEMP
 
                         Cache.IOQueues.Recv.queue(new Packet(
-                            id, packetId, recvBuffer.array()
-                        ));
+                            id, packetId, recvBuffer.array()));
 
                         recvBuffer = ByteBuffer.allocate(2);
                         state = 0;
@@ -176,7 +235,9 @@ public class Handling {
 
             } } catch (Exception e) {
 
-                Logging.warn(id + ": " + e.getMessage());
+                // Logging.warn(id + ": " + e.getMessage());
+                Logging.warn(id + ": ");
+                Logging.stackWarn(e);
             }
 
             queueDisconnect(id);

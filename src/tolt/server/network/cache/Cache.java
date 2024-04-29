@@ -86,30 +86,30 @@ public class Cache {
 
         public static class Send {
 
-            private static HashMap<Integer, Queue<Byte>> sendQueues = new HashMap<Integer, Queue<Byte>>();
+            private static HashMap<Integer, Queue<byte[]>> sendQueues = new HashMap<Integer, Queue<byte[]>>();
 
             public static void queue (int id, byte[] data) { synchronized (sendQueues) {
 
-                for (byte b : data) sendQueues.get(id).add(b);
+                sendQueues.get(id).add(data);
             } }
             public static void queueAll (byte[] data) { synchronized (sendQueues) {
 
                 sendQueues.keySet().forEach(id -> {
-                    for (byte b : data) sendQueues.get(id).add(b);
+                    sendQueues.get(id).add(data);
                 });
             } }
             public static boolean isEmpty (int id) { synchronized (sendQueues) {
 
                 return sendQueues.get(id).size() == 0;
             } }
-            public static byte pop (int id) { synchronized (sendQueues) {
+            public static byte[] pop (int id) { synchronized (sendQueues) {
 
                 return sendQueues.get(id).remove();
             } }
 
             public static void init (int id) { synchronized (sendQueues) {
 
-                if (!sendQueues.containsKey(id)) sendQueues.put(id, new LinkedList<Byte>());
+                if (!sendQueues.containsKey(id)) sendQueues.put(id, new LinkedList<byte[]>());
             } }
             public static void kill (int id) { synchronized (sendQueues) {
 
