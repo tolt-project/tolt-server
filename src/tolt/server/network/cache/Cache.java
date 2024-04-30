@@ -14,14 +14,14 @@ public class Cache {
 
     private static Vector<CacheEntry> cache = new Vector<CacheEntry>();
 
-    public static int initEntry (SSLSocket socket) {
+    public static int initEntry (SSLSocket socket) { synchronized (cache) {
 
         IOQueues.Send.init(socket.hashCode());
         cache.add(new CacheEntry(socket));
         return socket.hashCode();
-    }
+    } }
 
-    public static void killEntry (int id) {
+    public static void killEntry (int id) { synchronized (cache) {
 
         int index = -1;
         for (int i = 0; i < cache.size(); ++i)
@@ -30,25 +30,25 @@ public class Cache {
         IOQueues.Send.kill(id);
         cache.get(index).close();
         cache.remove(index);
-    }
+    } }
 
-    public static SSLSocket[] getAllSockets () {
+    public static SSLSocket[] getAllSockets () { synchronized (cache) {
 
         SSLSocket[] returnValue = new SSLSocket[cache.size()];
         for (int i = 0; i < cache.size(); ++i) returnValue[i] = cache.get(i).socket;
 
         return returnValue;
-    }
+    } }
 
-    public static int size () { return cache.size(); }
-    public static OutputStream getStreamByIndex (int i) { return cache.get(i).stream; }
-    public static String getNameByIndex (int i) { return cache.get(i).getName(); }
-    public static String getNameById (int id) { return cache.get(getIndexById(id)).getName(); }
-    public static int getIdByIndex (int i) { return cache.get(i).getId(); }
-    public static int getIndexById (int id) {
+    public static int size () { synchronized (cache) { return cache.size(); } }
+    public static OutputStream getStreamByIndex (int i) { synchronized (cache) { return cache.get(i).stream; } }
+    public static String getNameByIndex (int i) { synchronized (cache) { return cache.get(i).getName(); } }
+    public static String getNameById (int id) { synchronized (cache) { return cache.get(getIndexById(id)).getName(); } }
+    public static int getIdByIndex (int i) { synchronized (cache) { return cache.get(i).getId(); } }
+    public static int getIndexById (int id) { synchronized (cache) {
         for (int i = 0; i < cache.size(); ++i)
             if (cache.get(i).getId() == id) return i; return -1;
-    }
+    } }
 
     public static class Incoming {
 
