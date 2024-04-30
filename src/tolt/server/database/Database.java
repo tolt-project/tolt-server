@@ -98,6 +98,12 @@ public class Database {
             user.loginCount++;
             user.lastLoginTimeStamp = System.currentTimeMillis() / 1000L;
             user.lastLoginIPA = requesterIPA;
+            for (int i = 0; i < entryCache.size(); ++i)
+                if (entryCache.get(i).userHash.equals(user.userHash)) {
+                    accessStamps.set(i, System.currentTimeMillis() / 1000L);
+                    entryCache.set(i, user);
+                    save(user.userHash);
+                }
             return 0;
         } }
         public static String[] getAllUserHashes () { synchronized (Database.mutex) {
