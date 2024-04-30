@@ -65,7 +65,7 @@ public class Userbase {
         byte[] iv = Hashing.getHash16(Config.getString("database.salt").getBytes(StandardCharsets.UTF_8));
         byte[] saveData = AESWrapper.encrypt(entry.serialize(), key, iv);
 
-            Logging.debug("saved user entry of size: " + saveData.length);
+            Logging.debug("saved user entry of size: " + entry.serialize().length);
 
         Files.write(userFile.toPath(), saveData);
 
