@@ -29,4 +29,11 @@ public class SessionCache {
         if (cache.contains(entry)) cache.remove(entry);
         cache.add(entry);
     } }
+    public static void unsetById (int id) { synchronized (cache) {
+
+        int index = -1;
+        for (int i = 0; i < cache.size(); ++i) if (cache.get(i).id == id) index = i;
+        
+        if (index != -1) cache.remove(index);
+    } }
 }

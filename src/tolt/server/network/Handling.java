@@ -15,6 +15,7 @@ import java.net.Socket;
 import tolt.server.service.logging.Logging;
 import tolt.server.network.cache.Cache;
 import tolt.server.network.module.Packet;
+import tolt.server.core.cache.SessionCache;
 
 public class Handling {
 
@@ -63,6 +64,7 @@ public class Handling {
 
                 int id = Cache.Disconnecting.dequeue();
                 Cache.killEntry(id);
+                SessionCache.unsetById(id);
 
                 Logging.log(id + " has disconnected...");
             }
