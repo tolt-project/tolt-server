@@ -18,6 +18,8 @@ public class Idgen {
         File indexFile = new File(indexPath + category + ".idx");
         if (indexFile.exists())
             id = ByteBuffer.wrap(Files.readAllBytes(indexFile.toPath())).getLong();
+        else
+            indexFile.getParentFile().mkdirs();
 
         id += 1;
 
