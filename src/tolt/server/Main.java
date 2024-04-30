@@ -2,7 +2,7 @@
 package tolt.server;
 
 import tolt.server.system.Action;
-import tolt.server.core.Command;
+import tolt.server.core.Console;
 import tolt.server.service.logging.Logging;
 
 public class Main {
@@ -14,7 +14,7 @@ public class Main {
         while (true) try {
 
             String input = System.console().readLine();
-            Command.parse(input);
+            Console.parse(input);
 
         } catch (Exception e) {
 

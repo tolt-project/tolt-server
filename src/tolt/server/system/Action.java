@@ -11,6 +11,7 @@ import tolt.server.service.Config;
 import tolt.server.service.stats.Stats;
 import tolt.server.core.PacketProcessor;
 import tolt.server.core.Core;
+import tolt.server.core.Console;
 import tolt.server.database.Database;
 
 public class Action {
@@ -62,6 +63,7 @@ public class Action {
             Logging.start();
             Config.load();
             Stats.load();
+            Console.load();
 
             Network.start();
             Handling.start();
