@@ -44,6 +44,22 @@ public class Database {
                     save(newEntry.userHash);
                 }
         } }
+        private static UserEntry internalGet (String userHash) {
+            for (int i = 0; i < entryCache.size(); ++i)
+                if (entryCache.get(i).userHash.equals(userHash)) {
+                    accessStamps.set(i, System.currentTimeMillis() / 1000L);
+                    return entryCache.get(i);
+                }
+            return load(userHash);
+        }
+        private static void internalSet (UserEntry newEntry) {
+            for (int i = 0; i < entryCache.size(); ++i)
+                if (entryCache.get(i).userHash.equals(newEntry.userHash)) {
+                    accessStamps.set(i, System.currentTimeMillis() / 1000L);
+                    entryCache.set(i, newEntry);
+                    save(newEntry.userHash);
+                }
+        }
 
         public static void tick () { synchronized (Database.mutex) {
             cacheCheck();
@@ -93,17 +109,12 @@ public class Database {
             String requesterIPA
         ) { synchronized (Database.mutex) {
             if (!Userbase.userExists(SHAWrapper.sha256Text(username))) return -1;
-            UserEntry user = load(SHAWrapper.sha256Text(username)); if (user == null) return -2;
+            UserEntry user = internalGet(SHAWrapper.sha256Text(username)); if (user == null) return -2;
             if (!user.passwordHash.equals(passwordHash)) return -3;
             user.loginCount++;
             user.lastLoginTimeStamp = System.currentTimeMillis() / 1000L;
             user.lastLoginIPA = requesterIPA;
-            for (int i = 0; i < entryCache.size(); ++i)
-                if (entryCache.get(i).userHash.equals(user.userHash)) {
-                    accessStamps.set(i, System.currentTimeMillis() / 1000L);
-                    entryCache.set(i, user);
-                    save(user.userHash);
-                }
+            internalSet(user);
             return 0;
         } }
         public static String[] getAllUserHashes () { synchronized (Database.mutex) {
