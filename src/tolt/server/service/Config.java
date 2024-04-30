@@ -106,6 +106,7 @@ public class Config {
         "server.port:8282",
         "server.private-key-path:private-key.pem",
         "server.server-cert-path:server-cert.pem",
+        "database.salt:A cool phrase!",
     };
 
     private static void evaluate () {
