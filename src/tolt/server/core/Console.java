@@ -11,20 +11,38 @@ import tolt.server.core.commands.*;
 public class Console {
 
     public static void load () {
+
+        commands.add(new StopCommand());
+        commands.add(new HelpCommand());
+
+        Logging.log("Loaded `" + commands.size() + "' terminal commands.");
+    }
+
+    private static Vector<Command> commands = new Vector<Command>();
+
+    public static void listCommands () {
+
+        System.out.println();
+        for (Command command : commands) {
+
+            for (String name : command.getNames())
+                System.out.print(name + ", ");
+            System.out.println();
+
+            for (String line : command.getManual())
+                System.out.println("    " + line);
+        }
     }
 
     public static void parse (String input) {
 
         String[] args = input.contains(" ") ? input.split(" ") : new String[]{input};
 
-        switch (args[0]) {
+        for (Command command : commands)
+            if (Arrays.stream(command.getNames()).anyMatch(args[0]::equals)) {
+                command.execute(args); return;
+            }
 
-            case "exit": case "close": case "quit": case "stop":
-                Action.shutdown(0, "Stop command was encountered."); break;
-
-            case "connections": case "conn":
-
-            default: Logging.err("Unknown command: '" + input + "'!"); break;
-        }
+        Logging.err("Unknown command: `" + input + "'!");
     }
 }
