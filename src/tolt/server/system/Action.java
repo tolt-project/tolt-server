@@ -10,6 +10,8 @@ import tolt.server.service.logging.Logging;
 import tolt.server.service.Config;
 import tolt.server.service.stats.Stats;
 import tolt.server.core.PacketProcessor;
+import tolt.server.core.Core;
+import tolt.server.database.Database;
 
 public class Action {
 
@@ -32,6 +34,8 @@ public class Action {
         Logging.success(String.format(
             "Server started successfully! Took %dms.", startMillis));
     }
+
+    public static void tick () { Event.onLoop(); }
 
     public static void shutdown (int exitCode) {
 
@@ -62,6 +66,12 @@ public class Action {
             Network.start();
             Handling.start();
             PacketProcessor.start();
+            Core.start();
+        }
+
+        public static void onLoop () {
+
+            Database.tick();
         }
 
         public static void onShutdown () {
@@ -69,7 +79,9 @@ public class Action {
             Network.stop();
             Handling.stop();
             PacketProcessor.stop();
+            Core.stop();
 
+            Database.saveCache();
             Stats.save();
         }
     }
