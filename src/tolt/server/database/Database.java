@@ -100,5 +100,8 @@ public class Database {
             user.lastLoginIPA = requesterIPA;
             return 0;
         } }
+        public static String[] getAllUserHashes () { synchronized (Database.mutex) {
+            return Userbase.getAllUserHashes();
+        } }
     }
 }

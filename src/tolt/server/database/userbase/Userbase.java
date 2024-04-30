@@ -98,4 +98,17 @@ public class Userbase {
 
         return new File(userbasePath + userHash).exists();
     }
+
+    public static String[] getAllUserHashes () {
+
+        File userbaseFile = new File(userbasePath);
+        if (!userbaseFile.exists()) return new String[]{};
+
+        File[] files = userbaseFile.listFiles();
+        String[] returnArray = new String[files.length];
+        for (int i = 0; i < files.length; ++i)
+            returnArray[i] = files[i].getName();
+
+        return returnArray;
+    }
 }
