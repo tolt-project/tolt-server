@@ -14,6 +14,7 @@ public class Console {
 
         commands.add(new StopCommand());
         commands.add(new HelpCommand());
+        commands.add(new ConnectionsCommand());
 
         Logging.log("Loaded `" + commands.size() + "' terminal commands.");
     }
