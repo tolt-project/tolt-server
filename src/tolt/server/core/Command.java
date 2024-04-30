@@ -15,7 +15,7 @@ public class Command {
             case "exit": case "close": case "quit": case "stop":
                 Action.shutdown(0, "Stop command was encountered."); break;
 
-            default: Logging.err("Unknown command!"); break;
+            default: Logging.err("Unknown command: '" + input + "'!"); break;
         }
     }
 }
