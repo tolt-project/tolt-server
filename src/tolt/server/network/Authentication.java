@@ -8,6 +8,8 @@ import tolt.server.service.logging.Logging;
 import tolt.server.service.stats.Stats;
 import tolt.server.network.cache.Cache;
 import tolt.server.database.Database;
+import tolt.server.core.cache.SessionCache;
+import tolt.server.core.cache.SessionCacheEntry;
 
 public class Authentication {
 
@@ -96,7 +98,9 @@ public class Authentication {
             switch (Database.User.register(
                 username, passwordHash, realName, emailAddress, requesterIPA
             )) {
-                case 0: Logging.log(id + ": registered as '" + username + "'."); return true;
+                case 0:
+                    SessionCache.set(new SessionCacheEntry(username, Cache.getNameById(id), id));
+                    Logging.log(id + ": registered as '" + username + "'."); return true;
                 case -1: throw new Exception("the username is '" + username + "' taken!");
                 default: throw new Exception("Userbase.tryCreateUser() returned an unknown error code.");
             }
@@ -138,7 +142,9 @@ public class Authentication {
             switch (Database.User.login(
                 username, passwordHash, requesterIPA
             )) {
-                case 0: Logging.log(id + ": logged in as '" + username + "'."); return true;
+                case 0:
+                    SessionCache.set(new SessionCacheEntry(username, Cache.getNameById(id), id));
+                    Logging.log(id + ": logged in as '" + username + "'."); return true;
                 case -1: throw new Exception("there is no such user as '" + username + "' in the database!");
                 case -2: throw new Exception("Herobrine does't want '" + username + "' to log in right now!");
                 case -3: throw new Exception("password mismatch for '" + username + "'!");
