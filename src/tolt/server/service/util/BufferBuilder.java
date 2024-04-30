@@ -51,6 +51,10 @@ public class BufferBuilder {
         for (byte b : ByteBuffer.allocate(4).putInt(a.length).array()) buffer.add(b);
         for (byte b : ByteBuffer.allocate(a.length).put(a).array()) buffer.add(b);
     }
+    public void append (byte[] v) {
+        for (byte b : ByteBuffer.allocate(4).putInt(v.length).array()) buffer.add(b);
+        for (byte b : ByteBuffer.allocate(v.length).put(v).array()) buffer.add(b);
+    }
 
     public byte getByte () { return buffer.get(++index); }
     public short getShort () {
@@ -80,6 +84,11 @@ public class BufferBuilder {
     public String getString () {
         int s = ByteBuffer.wrap(toArray(), index, 4).getInt(); index += 4;
         String v = new String(toArray(), index, s); index += s;
+        return v;
+    }
+    public byte[] getByteArray () {
+        int s = ByteBuffer.wrap(toArray(), index, 4).getInt(); index += 4;
+        byte[] v = ByteBuffer.wrap(toArray(), index, s).array(); index += s;
         return v;
     }
 }
