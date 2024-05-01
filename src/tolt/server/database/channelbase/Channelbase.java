@@ -17,9 +17,9 @@ public class Channelbase {
 
     private static final String channelbasePath = "./db/usr";
 
-    public static int tryCreateChannel (String channelName, String nameContext, String creationUsername) {
+    public static int tryCreateChannel (String channelName, String channelNameContext, String creationUsername) {
 
-        String channelHash = SHAWrapper.sha256Text(nameContext + "/" + channelName);
+        String channelHash = SHAWrapper.sha256Text(channelNameContext + "/" + channelName);
         File channelFile = new File(channelbasePath + channelHash);
         if (channelFile.exists()) return -1;
 
@@ -29,7 +29,7 @@ public class Channelbase {
             entry.channelHash = channelHash;
             entry.channelId = Idgen.generateId("chn");
 
-            entry.nameContext = nameContext;
+            entry.channelNameContext = channelNameContext;
 
             entry.creationTimeStamp = System.currentTimeMillis() / 1000L;
             entry.creationUsername = creationUsername;
@@ -43,7 +43,7 @@ public class Channelbase {
 
     public static void saveChannel (ChannelEntry entry) { try {
 
-        String channelHash = SHAWrapper.sha256Text(entry.nameContext + "/" + entry.channelName);
+        String channelHash = SHAWrapper.sha256Text(entry.channelNameContext + "/" + entry.channelName);
         File channelFile = new File(channelbasePath + channelHash);
 
         if (!channelFile.exists()) channelFile.getParentFile().mkdirs();

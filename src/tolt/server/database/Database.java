@@ -194,11 +194,11 @@ public class Database {
 
         public static int create (
             String channelName,
-            String nameContext,
+            String channelNameContext,
             String creationUsername
         ) { synchronized (Database.mutex) {
             return Channelbase.tryCreateChannel(
-                channelName, nameContext, creationUsername
+                channelName, channelNameContext, creationUsername
             );
         } }
     }
