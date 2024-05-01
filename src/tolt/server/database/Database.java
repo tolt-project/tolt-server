@@ -2,9 +2,11 @@
 package tolt.server.database;
 
 import java.util.Vector;
+import java.lang.Math;
 
 import tolt.server.service.logging.Logging;
 import tolt.server.security.util.SHAWrapper;
+import tolt.server.core.module.Message;
 import tolt.server.database.userbase.*;
 import tolt.server.database.channelbase.*;
 
@@ -22,7 +24,10 @@ public class Database {
             Channel.tick();
         }
     }
-    public static void saveCache () { }
+    public static void saveCache () {
+
+        Channel.finalTick();
+    }
 
     public static class User {
 
@@ -141,7 +146,7 @@ public class Database {
                 if (entryCache.get(i).channelHash.equals(newEntry.channelHash)) {
                     accessStamps.set(i, System.currentTimeMillis() / 1000L);
                     entryCache.set(i, newEntry);
-                    save(newEntry.channelHash);
+                    entryCache.get(i).modified = true;
                 }
         } }
         private static ChannelEntry internalGet (String channelHash) {
@@ -157,27 +162,30 @@ public class Database {
                 if (entryCache.get(i).channelHash.equals(newEntry.channelHash)) {
                     accessStamps.set(i, System.currentTimeMillis() / 1000L);
                     entryCache.set(i, newEntry);
-                    save(newEntry.channelHash);
+                    entryCache.get(i).modified = true;
                 }
         }
 
         public static void tick () { synchronized (Database.mutex) {
             cacheCheck();
         } }
+        public static void finalTick () { synchronized (Database.mutex) {
+            saveCheck();
+        } }
 
         private static ChannelEntry load (String channelHash) {
             ChannelEntry entry = Channelbase.loadChannel(channelHash);
             accessStamps.add(System.currentTimeMillis() / 1000L);
+            entry.load();
             entryCache.add(entry);
             Logging.debug("loaded " + channelHash);
             return entry;
         }
         private static void save (String channelHash) {
-            for (var entry : entryCache) if (entry.channelHash.equals(channelHash))
+            for (var entry : entryCache) if (entry.channelHash.equals(channelHash)) {
+                entry.save();
                 Channelbase.saveChannel(entry);
-        }
-        private static void save () {
-            for (var entry : entryCache) Channelbase.saveChannel(entry);
+            }
         }
         private static void cacheCheck () {
             Vector<String> removeList = new Vector<String>();
@@ -187,9 +195,15 @@ public class Database {
             for (String hash : removeList)
                 for (int i = 0; i < entryCache.size(); ++i)
                     if (entryCache.get(i).channelHash.equals(hash)) {
-                        accessStamps.remove(i); entryCache.remove(i);
-                        Logging.debug("unloaded " + hash);
+                        save(entryCache.get(i).channelHash); accessStamps.remove(i); entryCache.remove(i);
+                        Logging.debug("saved and unloaded " + hash);
                     }
+        }
+        private static void saveCheck () {
+            for (int i = 0; i < entryCache.size(); ++i) {
+                if (entryCache.get(i).modified) save(entryCache.get(i).channelHash);
+                Logging.debug("saved " + entryCache.get(i).channelHash);
+            }
         }
 
         public static int create (
@@ -200,6 +214,22 @@ public class Database {
             return Channelbase.tryCreateChannel(
                 channelName, channelNameContext, creationUsername
             );
+        } }
+
+        public static void addMessage (String channelHash, Message message) { synchronized (Database.mutex) {
+            for (var entry : entryCache) if (entry.channelHash.equals(channelHash)) {
+                entry.messageCache.add(message);
+                entry.modified = true;
+            }
+        } }
+        public static Message[] getMessages (String channelHash, int count) { synchronized (Database.mutex) {
+            for (var entry : entryCache) if (entry.channelHash.equals(channelHash)) {
+                int returnCount = Math.min(entry.messageCache.size(), count);
+                Message[] returnArray = new Message[returnCount];
+                for (int i = 0; i < returnCount; ++i)
+                    returnArray[i] = entry.messageCache.get(i);
+            }
+            return new Message[0];
         } }
     }
 }
