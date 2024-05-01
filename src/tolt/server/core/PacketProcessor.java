@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import tolt.server.service.logging.Logging;
 import tolt.server.network.cache.Cache;
 import tolt.server.network.module.Packet;
+import tolt.server.core.event.*;
 
 public class PacketProcessor {
 
@@ -41,11 +42,14 @@ public class PacketProcessor {
                 Logging.debug(String.format(
                     "Packet of size %d entered processing...", packet.size()));
 
-                ByteBuffer buffer = ByteBuffer.allocate(packet.size() + 6);
-                buffer.putShort(packet.id);
-                buffer.putInt(packet.size());
-                buffer.put(packet.data);
-                Cache.IOQueues.Send.queueAll(buffer.array());
+                switch (packet.id) {
+
+                    case 69: DebugEvents.debugRelayEvent(packet.data); break;
+
+                    case 0: StandardEvents.joinChannelRequestEvent(packet.data); break;
+                    case 1: StandardEvents.messageChannelRequestEvent(packet.data); break;
+                    case 2: StandardEvents.getMessagesFromChannelRequestEvent(packet.data); break;
+                }
             }
 
         } catch (Exception e) {

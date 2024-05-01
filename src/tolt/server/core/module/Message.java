@@ -20,6 +20,8 @@ public class Message {
 
         BufferBuilder builder = new BufferBuilder(data);
 
+        System.out.println(builder.toString());
+
         builder.getByte();
         author = builder.getString();
         content = builder.getString();

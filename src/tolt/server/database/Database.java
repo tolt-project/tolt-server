@@ -217,19 +217,18 @@ public class Database {
         } }
 
         public static void addMessage (String channelHash, Message message) { synchronized (Database.mutex) {
-            for (var entry : entryCache) if (entry.channelHash.equals(channelHash)) {
-                entry.messageCache.add(message);
-                entry.modified = true;
-            }
+            ChannelEntry entry = internalGet(channelHash);
+            entry.messageCache.add(message);
+            entry.modified = true;
+            internalSet(entry);
         } }
         public static Message[] getMessages (String channelHash, int count) { synchronized (Database.mutex) {
-            for (var entry : entryCache) if (entry.channelHash.equals(channelHash)) {
-                int returnCount = Math.min(entry.messageCache.size(), count);
-                Message[] returnArray = new Message[returnCount];
-                for (int i = 0; i < returnCount; ++i)
-                    returnArray[i] = entry.messageCache.get(i);
-            }
-            return new Message[0];
+            ChannelEntry entry = internalGet(channelHash);
+            int returnCount = Math.min(entry.messageCache.size(), count);
+            Message[] returnArray = new Message[returnCount];
+            for (int i = 0; i < returnCount; ++i)
+                returnArray[i] = entry.messageCache.get(i);
+            return returnArray;
         } }
     }
 }

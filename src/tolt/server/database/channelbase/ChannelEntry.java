@@ -82,8 +82,8 @@ public class ChannelEntry {
             builder.append(messageCache.size());
             for (Message message : messageCache)
                 builder.append(message.serialize());
-
-            int c = -1;
+Logging.debug(builder.toString());
+            int c = 0;
             File file = new File(dbPath + channelHash + "/" + (c++) + ".dat");
             while (file.length() > maxSectionSize)
                 file = new File(dbPath + channelHash + "/" + (c++) + ".dat");
@@ -103,8 +103,9 @@ public class ChannelEntry {
 
         try {
 
-            int c = -1;
-            File file = new File(dbPath + channelHash + "/" + (c++) + ".dat");
+            int c = 0;
+            File file = new File(dbPath + channelHash + "/0.dat");
+            if (!file.exists()) return;
             while (true)
                 if (new File(dbPath + channelHash + "/" + (c + 1) + ".dat").exists())
                     file = new File(dbPath + channelHash + "/" + (c++) + ".dat");
@@ -112,14 +113,16 @@ public class ChannelEntry {
 
             messageCache.clear();
             BufferBuilder builder = new BufferBuilder(Files.readAllBytes(file.toPath()));
-            for (int i = 0; i < builder.getInt(); ++i)
+            int messageCount = builder.getInt();Logging.debug(builder.toString());
+            for (int i = 0; i < messageCount; ++i)
                 messageCache.add(new Message(builder.getByteArray()));
 
                 Logging.debug("loaded " + builder.size() + " bytes from " + file.getPath());
 
         } catch (Exception e) {
 
-            Logging.warn("Failed to save channel: " + e.getMessage());
+            Logging.warn("Failed to load channel: ");
+            Logging.stackWarn(e);
         }
     }
 }

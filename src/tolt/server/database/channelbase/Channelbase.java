@@ -15,7 +15,7 @@ import tolt.server.database.Idgen;
 
 public class Channelbase {
 
-    private static final String channelbasePath = "./db/chn";
+    private static final String channelbasePath = "./db/chn/";
 
     public static int tryCreateChannel (String channelName, String channelNameContext, String creationUsername) {
 
