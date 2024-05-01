@@ -12,7 +12,7 @@ public class BufferBuilder {
 
     public int size () { return buffer.size(); }
     public void reset () { index = 0; }
-    public void clear () { buffer.clear(); }
+    public void clear () { buffer.clear(); reset(); }
 
     private byte[] cache = new byte[0];
     public byte[] toArray () {
