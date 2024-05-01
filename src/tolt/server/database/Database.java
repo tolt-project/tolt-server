@@ -5,8 +5,8 @@ import java.util.Vector;
 
 import tolt.server.service.logging.Logging;
 import tolt.server.security.util.SHAWrapper;
-import tolt.server.database.userbase.Userbase;
-import tolt.server.database.userbase.UserEntry;
+import tolt.server.database.userbase.*;
+import tolt.server.database.channelbase.*;
 
 public class Database {
 
@@ -19,6 +19,7 @@ public class Database {
         if (counter == 10) { counter = 0;
 
             User.tick();
+            Channel.tick();
         }
     }
     public static void saveCache () { }
@@ -119,6 +120,86 @@ public class Database {
         } }
         public static String[] getAllUserHashes () { synchronized (Database.mutex) {
             return Userbase.getAllUserHashes();
+        } }
+    }
+
+    public static class Channel {
+
+        private static Vector<ChannelEntry> entryCache = new Vector<ChannelEntry>();
+        private static Vector<Long> accessStamps = new Vector<Long>();
+
+        public static ChannelEntry get (String channelHash) { synchronized (Database.mutex) {
+            for (int i = 0; i < entryCache.size(); ++i)
+                if (entryCache.get(i).channelHash.equals(channelHash)) {
+                    accessStamps.set(i, System.currentTimeMillis() / 1000L);
+                    return entryCache.get(i);
+                }
+            return load(channelHash);
+        } }
+        public static void set (ChannelEntry newEntry) { synchronized (Database.mutex) {
+            for (int i = 0; i < entryCache.size(); ++i)
+                if (entryCache.get(i).channelHash.equals(newEntry.channelHash)) {
+                    accessStamps.set(i, System.currentTimeMillis() / 1000L);
+                    entryCache.set(i, newEntry);
+                    save(newEntry.channelHash);
+                }
+        } }
+        private static ChannelEntry internalGet (String channelHash) {
+            for (int i = 0; i < entryCache.size(); ++i)
+                if (entryCache.get(i).channelHash.equals(channelHash)) {
+                    accessStamps.set(i, System.currentTimeMillis() / 1000L);
+                    return entryCache.get(i);
+                }
+            return load(channelHash);
+        }
+        private static void internalSet (ChannelEntry newEntry) {
+            for (int i = 0; i < entryCache.size(); ++i)
+                if (entryCache.get(i).channelHash.equals(newEntry.channelHash)) {
+                    accessStamps.set(i, System.currentTimeMillis() / 1000L);
+                    entryCache.set(i, newEntry);
+                    save(newEntry.channelHash);
+                }
+        }
+
+        public static void tick () { synchronized (Database.mutex) {
+            cacheCheck();
+        } }
+
+        private static ChannelEntry load (String channelHash) {
+            ChannelEntry entry = Channelbase.loadChannel(channelHash);
+            accessStamps.add(System.currentTimeMillis() / 1000L);
+            entryCache.add(entry);
+            Logging.debug("loaded " + channelHash);
+            return entry;
+        }
+        private static void save (String channelHash) {
+            for (var entry : entryCache) if (entry.channelHash.equals(channelHash))
+                Channelbase.saveChannel(entry);
+        }
+        private static void save () {
+            for (var entry : entryCache) Channelbase.saveChannel(entry);
+        }
+        private static void cacheCheck () {
+            Vector<String> removeList = new Vector<String>();
+            for (int i = 0; i < accessStamps.size(); ++i)
+                if ((System.currentTimeMillis() / 1000L) - accessStamps.get(i) > 60)
+                    removeList.add(entryCache.get(i).channelHash);
+            for (String hash : removeList)
+                for (int i = 0; i < entryCache.size(); ++i)
+                    if (entryCache.get(i).channelHash.equals(hash)) {
+                        accessStamps.remove(i); entryCache.remove(i);
+                        Logging.debug("unloaded " + hash);
+                    }
+        }
+
+        public static int create (
+            String channelName,
+            String nameContext,
+            String creationUsername
+        ) { synchronized (Database.mutex) {
+            return Channelbase.tryCreateChannel(
+                channelName, nameContext, creationUsername
+            );
         } }
     }
 }
